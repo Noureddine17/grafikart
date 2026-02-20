@@ -9,6 +9,16 @@ Route::get('/', [BienController::class, 'Home'])->name('home');
 Route::get('/CreateAccount', [UserController::class, 'create'])->name('users.create');
 Route::post('/CreateAccount', [UserController::class, 'store'])->name('users.store');
 
+Route::get('/login', [UserController::class, 'log'])->name('users.log');
+Route::post('/login', [UserController::class, 'login'])->name('users.login');
+Route::post('/logout', [UserController::class, 'logout'])->name('users.logout');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/account', fn () => view('account.index'));
+});
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    
+});
 
 
 Route::get('/biens', [BienController::class, 'index'])->name('biens.index');
@@ -18,6 +28,7 @@ Route::post('/biens/{bien}/contact', [BienController::class, 'contact'])->name('
 
 //Route::get('/biens/deepsearch', [BienController::class, 'deepsearch'])->name('biens.deepsearch');
 //Route::get('/biens')
+
 
 
 

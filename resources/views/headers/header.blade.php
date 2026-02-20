@@ -19,22 +19,36 @@
                 <a class="navbar-brand" href="/">Agence
                     Immo
                 </a>
-                <!-- <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button> -->
+
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav">
-<!-- <li class="nav-item"><a class="nav-link active" aria-current="page" href="/">Acceuil</a></li>
+                        <!-- <li class="nav-item"><a class="nav-link active" aria-current="page" href="/">Acceuil</a></li>
                         <li class="nav-item"><a class="nav-link" href="/about">Agence</a></li> -->
                         <li class="nav-item"><a class="nav-link" href="/biens">Nos biens</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/create">Ajouter un bien</a></li>
-              
+
+                        @if (Auth::user() && Auth::user()->role === 'admin')
+                            <li class="nav-item"><a class="nav-link" href="/create">Ajouter un bien</a></li>
+
+                        @endif
+
                     </ul>
                 </div>
 
-                <a href="{{ route('users.create') }}" class="navbar-brand">Créer un compte</a>
-                <a href="/login" class="navbar-brand">Se connecter</a>
+
+                @if (Auth::check())
+                    <form action="{{ route('users.logout') }}" method="POST" class="d-inline">
+                        @csrf
+                        <button type="submit" class="btn btn-outline-light">Se déconnecter</button>
+                    </form>
+
+                @endif
+
+                @if (!Auth::check())
+                    <a href="{{ route('users.create') }}" class="navbar-brand">Créer un compte</a>
+                    <a href="/login" class="navbar-brand">Se connecter</a>
+                @endif
+
+
             </div>
         </nav>
     </header>

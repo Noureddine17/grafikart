@@ -49,6 +49,7 @@
             <button type="submit" class="btn btn-primary">Creer mon compte</button>
         </form>
     </div>
+    
 </main>
 
 @include('headers.footer')

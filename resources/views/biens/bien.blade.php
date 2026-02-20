@@ -57,15 +57,15 @@
                                 {{ $bien->address }}<br>
                                 {{ $bien->code_postal }} {{ $bien->ville }}
                             </p>
+                            @if ( Auth::user() && Auth::user()->role === 'admin')
+                                <a href="{{ route('biens.edit', $bien->id) }}" class="btn btn-sm btn-outline-primary">Éditer</a>
 
-                            <a href="{{ route('biens.edit', $bien->id) }}" class="btn btn-sm btn-outline-primary">Éditer</a>
-
-                            <form action="{{ route('biens.destroy', $bien->id) }}" method="POST" class="btn-group">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-outline-danger">Supprimer</button>
-                            </form>
-
+                                <form action="{{ route('biens.destroy', $bien->id) }}" method="POST" class="btn-group">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Supprimer</button>
+                                </form>
+                            @endif
                         </div>
                     </div>
                 </div>
