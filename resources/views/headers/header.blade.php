@@ -34,8 +34,11 @@
                     </ul>
                 </div>
 
-
+            
                 @if (Auth::check())
+                    <span class="navbar-text me-3">
+                        Bonjour, {{ Auth::user()->name }}
+                    </span>
                     <form action="{{ route('users.logout') }}" method="POST" class="d-inline">
                         @csrf
                         <button type="submit" class="btn btn-outline-light">Se déconnecter</button>

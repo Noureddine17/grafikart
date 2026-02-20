@@ -65,6 +65,8 @@
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-sm btn-outline-danger">Supprimer</button>
                                 </form>
+
+                     
                             @endif
                         </div>
                     </div>

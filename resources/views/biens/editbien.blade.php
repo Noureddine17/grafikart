@@ -6,6 +6,11 @@
             @csrf
             @method('POST')
 
+            <div class="form-check form-switch">
+                <input type="hidden" name="vendue" value="0"  class="form-check-input">
+                <input type="checkbox" name="vendue" value="1" class="form-check-input"{{ $bien->vendue ? 'checked' : '' }}>
+                <label class="form-check-label" for="vendue">Vendu ?</label>
+            </div>
             <div class="mb-3">
                 <label for="title" class="form-label">Titre</label>
                 <input type="text" class="form-control" id="title" name="title" value="{{ $bien->title }}" required>

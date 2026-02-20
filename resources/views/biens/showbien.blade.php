@@ -100,27 +100,38 @@
                 <h3 class="fw-bold pt-3">Adresse</h3>
                 <ul class="list-group list-group-flush">
 
-                <h3 class="fw-bold pt-3">Caractéristiques</h3>
-                <ul class="list-group list-group-flush">
+                    <h3 class="fw-bold pt-3">Caractéristiques</h3>
+                    <ul class="list-group list-group-flush">
 
-                    <li class="list-group-item bg-light rounded d-flex justify-content-between align-items-center">
-                        <span>Surface habitable</span>
-                        <span>{{ $bien->surface }} m²</span>
-                    </li>
-                    <li class="list-group-item d-flex  justify-content-between align-items-center">
-                        <span>Pièces</span>
-                        <span class=" bg-light rounded-pill">{{ $bien->pieces }}</span>
-                    </li>
+                        <li class="list-group-item bg-light rounded d-flex justify-content-between align-items-center">
+                            <span>Surface habitable</span>
+                            <span>{{ $bien->surface }} m²</span>
+                        </li>
+                        @if ($bien->vendue)
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>Statut</span>
+                                <span class="badge bg-danger text-light rounded-pill">Vendu</span>
+                            </li>
+                        @else
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>Statut</span>
+                                <span class="badge bg-success text-light rounded-pill">Disponible</span>
+                            </li>
+                        @endif
+                        <li class="list-group-item d-flex  justify-content-between align-items-center">
+                            <span>Pièces</span>
+                            <span class=" bg-light rounded-pill">{{ $bien->pieces }}</span>
+                        </li>
 
-                    <li class="list-group-item d-flex bg-light rounded justify-content-between align-items-center">
-                        <span>Chambres</span>
-                        <span>{{ $bien->chambre }}</span>
-                    </li>
+                        <li class="list-group-item d-flex bg-light rounded justify-content-between align-items-center">
+                            <span>Chambres</span>
+                            <span>{{ $bien->chambre }}</span>
+                        </li>
 
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <span>Etages</span>
-                        <span>{{ $bien->etage }}</span>
-                    </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Etages</span>
+                            <span>{{ $bien->etage }}</span>
+                        </li>
 
             </div>
 
@@ -189,7 +200,12 @@
                                 @enderror
                             </div>
                             <div class="col-12 d-grid">
-                                <button type="submit" class="btn btn-primary">Nous contacter</button>
+                                @if (!Auth::check())
+                                    <p class="text-muted ">Vous devez être connecté pour contacter l'agence.</p>
+                                @endif
+                                @if (Auth::check())
+                                    <button type="submit" class="btn btn-primary">Nous contacter</button>
+                                @endif
                             </div>
                         </div>
                     </form>
@@ -210,6 +226,8 @@
                         </thead>
                         <tbody>
                     </table>
+
+                    
             </div>
 
 

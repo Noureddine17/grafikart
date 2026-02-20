@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class Bien extends Model
 {
-    //
     protected $fillable = [
         'title',
         'surface',
@@ -21,5 +20,9 @@ class Bien extends Model
         'images',
         'vendue',
         'chambre',
+    ];
+
+    protected $casts = [
+        'vendue' => 'boolean',
     ];
 }

@@ -29,7 +29,7 @@ class BienController extends Controller
         }
         if ($request->filled('mots-clef')) {
             $mot = '%' . $request->input('mots-clef') . '%';
-            $query->whereAny(['title', 'description', 'options', 'address', 'ville', 'code_postal', 'etage','chambre','etage'], 'like', $mot);
+            $query->whereAny(['title', 'description', 'options', 'address', 'ville', 'code_postal', 'etage', 'chambre', 'etage'], 'like', $mot);
         }
 
 
@@ -81,6 +81,7 @@ class BienController extends Controller
             'options' => 'nullable|string',
             'images' => 'required|image|max:50000', // 50mb max
             'chambre' => 'nullable|string',
+
         ]);
 
         // 2. Traitement de l'image
@@ -93,6 +94,8 @@ class BienController extends Controller
         // On le remplace par le chemin (string) pour que la base de données l'accepte.
         $validatedData['images'] = $imagePath;
 
+        $validatedData['vendue'] = false;
+
         if (empty($validatedData['options'])) {
             $validatedData['options'] = '';
         }
@@ -104,7 +107,7 @@ class BienController extends Controller
 
         // 4. Enregistrement
         // On utilise les données validées (avec le chemin de l'image corrigé) pour créer le Bien
-        Bien::create($validatedData);
+        $bien = Bien::create($validatedData);
 
         // 5. Redirection
         // On redirige l'utilisateur vers la liste des biens (ou ailleurs) avec un message
@@ -140,7 +143,9 @@ class BienController extends Controller
      */
     public function update(Request $request, Bien $bien)
     {
-        $bien->update($request->all());
+        $data = $request->except('images');
+        $data['vendue'] = $request->boolean('vendue');
+        $bien->fill($data);
 
         $imagePath = $request->file('images');
         if ($imagePath) {
