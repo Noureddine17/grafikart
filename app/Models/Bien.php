@@ -3,9 +3,18 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use HasFactory\Database\Factories\BienFactory;
+   
+
 
 class Bien extends Model
+
 {
+
+    /** @use HasFactory<\Database\Factories\BienFactory> */
+    use HasFactory;
+
     protected $fillable = [
         'title',
         'surface',

@@ -23,8 +23,9 @@ return new class extends Migration
             $table->string('address');
             $table->string('ville');
             $table->string('code_postal');
-            $table->string('options')->nullable()->change();
+            $table->string('options')->nullable();
             $table->string('images');
+            $table->string('chambre')->nullable();
             $table->boolean('vendue')->default(false);
             $table->timestamps();
         });
