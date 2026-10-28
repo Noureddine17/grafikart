@@ -4,9 +4,13 @@ use App\Http\Middleware\RoleMiddleware;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BienController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\OptionController;
 
 
 Route::get('/', [BienController::class, 'Home'])->name('home');
+
+
+
 
 Route::get('/CreateAccount', [UserController::class, 'create'])->name('users.create');
 Route::post('/CreateAccount', [UserController::class, 'store'])->name('users.store');
@@ -27,12 +31,20 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
-    Route::get('/create', function () {
-        return view('biens.createbien');
-    });
+
+
+    Route::get('/options', [OptionController::class, 'index'])->name('options.index');
+    Route::post('/options', [OptionController::class, 'store'])->name('options.store');
+    Route::get('/options/{option}/edit', [OptionController::class, 'edit'])->name('options.edit');
+    Route::put('/options/{option}/edit', [OptionController::class, 'update'])->name('options.update');
+    Route::delete('/options/{option}', [OptionController::class, 'destroy'])->name('options.destroy');
+
+
+
+    Route::get('/create', [BienController::class, 'create'])->name('biens.create');
     Route::post('/create', [BienController::class, 'store'])->name('biens.store');
     Route::get('/biens/{bien}/edit', [BienController::class, 'edit'])->name('biens.edit');
-    Route::post('/biens/{bien}/edit', [BienController::class, 'update'])->name('biens.update');
+    Route::put('/biens/{bien}/edit', [BienController::class, 'update'])->name('biens.update');
     Route::delete('/biens/{bien}', [BienController::class, 'destroy'])->name('biens.destroy');
 });
 

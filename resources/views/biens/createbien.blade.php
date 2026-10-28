@@ -134,12 +134,18 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
-
-                        <div class="col-12">
+ 
+                        <div class=" col-md-6">
                             <label for="options" class="form-label">Options</label>
-                            <input type="text" id="options" name="options"
-                                class="form-control @error('options') is-invalid @enderror" value="{{ old('options') }}"
-                                placeholder="Ex: balcon, garage, jardin">
+                         @foreach($options as $option)
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="options[]" value="{{ $option->id }}"
+                                        id="option{{ $option->id }}" {{ (is_array(old('options')) && in_array($option->id, old('options'))) ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="option{{ $option->id }}">
+                                        {{ $option->name }}
+                                    </label>
+                                </div>
+                            @endforeach
                             @error('options')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror

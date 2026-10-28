@@ -31,7 +31,6 @@ class BienFactory extends Factory
             'address' => fake()->streetAddress(),
             'ville' => fake()->city(),
             'code_postal' => rand(10000, 99999),
-            'options' => implode(',', fake()->words(rand(1, 5))),
             'images' => $randomFile,
             'chambre' => rand(0,10),
             'vendue' => false,

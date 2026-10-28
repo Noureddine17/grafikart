@@ -7,11 +7,11 @@
     <title>{{ config('app.name', 'Agence Immobilière') }}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @include('sweetalert::alert', ['cdn' => "https://cdn.jsdelivr.net/npm/sweetalert2@9"])
 </head>
 
-<body>
+<body style="background-color: #E7E9E6">
 
     <header>
         <nav class="navbar navbar-expand-lg bg-primary navbar-dark">
@@ -28,6 +28,7 @@
 
                         @if (Auth::user() && Auth::user()->role === 'admin')
                             <li class="nav-item"><a class="nav-link" href="/create">Ajouter un bien</a></li>
+                            <li class="nav-item"><a class="nav-link" href="/options">Ajouter une option</a></li>
 
                         @endif
 

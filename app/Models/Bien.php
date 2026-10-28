@@ -4,15 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use HasFactory\Database\Factories\BienFactory;
-   
-
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Bien extends Model
-
 {
-
-    /** @use HasFactory<\Database\Factories\BienFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -25,11 +20,15 @@ class Bien extends Model
         'address',
         'ville',
         'code_postal',
-        'options',
         'images',
         'vendue',
         'chambre',
     ];
+    
+    public function featureOptions(): BelongsToMany
+    {
+        return $this->belongsToMany(Option::class, 'biens_options', 'bien_id', 'option_id');
+    }
 
     protected $casts = [
         'vendue' => 'boolean',

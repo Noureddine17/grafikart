@@ -5,7 +5,7 @@ namespace Database\Seeders;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use App\Models\Bien;
-
+use App\Models\Option;
 
 class DatabaseSeeder extends Seeder
 {
@@ -14,10 +14,17 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        User::factory(10)->create();
+        User::factory(15)->create();
 
-   
-        Bien::factory(10)->create();
+        $options = Option::factory(10)->create();
+
+        Bien::factory(15)
+            ->create()
+            ->each(function (Bien $bien) use ($options) {
+                $bien->featureOptions()->sync(
+                    $options->random(rand(1, min(4, $options->count())))->pluck('id')->all()
+                );
+            });
 
 
         // DB::table('biens')->insert([

@@ -4,11 +4,18 @@
     style="background-image: url('{{ asset('agenceimmo.jpg') }}'); background-size: cover; background-position: center; max-width: 1920px; height: 440px; margin: 0 auto;">
     <div class="container">
         <h1 class="display-4 fw-bold text-black mb-4">Marhbabik fi l'agence</h1>
-        <p class="lead bg-light bg-opacity-25 py-3 rounded fw-bold text-black mb-4">Ici vous trouverez les meilleurs biens immobiliers de la région.</p>
+        <p class="lead bg-light bg-opacity-25 py-3 rounded fw-bold text-black mb-4">Ici vous trouverez les meilleurs
+            biens immobiliers de la région.</p>
     </div>
 </div>
 
-<div class="container">
+<div class="container" >
+
+    @if (session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
 
     @if (Auth::check())
         <h2 class="mb-4">Les derniers biens ajoutés :</h2>
@@ -44,11 +51,7 @@
                     </div>
                 </div>
             @endforeach
-            @if (session('success'))
-                <div class="alert alert-success">
-                    {{ session('success') }}
-                </div>
-            @endif
+
         </div>
     @else
         <div class="mb-4 justify-content-center text-center">

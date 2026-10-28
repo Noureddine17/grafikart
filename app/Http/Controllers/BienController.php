@@ -4,10 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Mail\BienContactMail;
 use App\Models\Bien;
+use App\Models\Option;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
-
-
 
 class BienController extends Controller
 {
@@ -16,7 +15,16 @@ class BienController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Bien::query();
+        $query = Bien::query()->with('featureOptions:id,name');
+
+        $options = Option::query()->orderBy('name')->get();
+        $selectedOptions = collect($request->input('options', []))
+            ->filter(fn($optionId) => filled($optionId))
+            ->map(fn($optionId) => (int) $optionId)
+            ->values()
+            ->all();
+
+        $cleanSearch = str_replace(' ', '', $request->input('prix_max', ''));
 
         if ($request->filled('surface_min')) {
             $query->where('surface', '>=', $request->input('surface_min'));
@@ -25,17 +33,28 @@ class BienController extends Controller
             $query->where('pieces', '>=', $request->input('pieces_min'));
         }
         if ($request->filled('prix_max')) {
-            $query->where('prix', '<=', $request->input('prix_max'));
+            $query->where('prix', '<=', $cleanSearch);
         }
         if ($request->filled('mots-clef')) {
             $mot = '%' . $request->input('mots-clef') . '%';
-            $query->whereAny(['title', 'description', 'options', 'address', 'ville', 'code_postal', 'etage', 'chambre', 'etage'], 'like', $mot);
+            $query->whereAny(['title', 'description', 'address', 'ville', 'code_postal', 'etage', 'chambre', 'etage'], 'like', $mot);
+        }
+        if ($selectedOptions !== []) {
+            $query->whereHas('featureOptions', function ($relationQuery) use ($selectedOptions) {
+                $relationQuery->whereIn('options.id', $selectedOptions);
+            });
         }
 
 
-        $biens = $query->paginate(9);
+        $biens = $query->paginate(9)->appends($request->query());
 
-        return view('biens.bien', ['biens' => $biens]);
+        confirmDelete('Supprimer ce bien ?', 'Cette action est irreversible.');
+
+        return view('biens.bien', [
+            'biens' => $biens,
+            'options' => $options,
+            'selectedOptions' => $selectedOptions,
+        ]);
     }
 
 
@@ -44,20 +63,15 @@ class BienController extends Controller
         return view('welcome', ['biens' => Bien::latest()->take(3)->get()]);
     }
 
-
-
-
     /**
      * Show the form for creating a new resource.
      */
     public function create()
     {
-        //
-
-        return view('biens.bien', ['success' => 'Le bien a été ajouté avec succès !']);
+        return view('biens.createbien', [
+            'options' => Option::query()->orderBy('name')->get(),
+        ]);
     }
-
-
 
 
     /**
@@ -66,8 +80,6 @@ class BienController extends Controller
 
     public function store(Request $request)
     {
-        // 1. Validation des données
-        // On s'assure que les données reçues respectent tes critères
         $validatedData = $request->validate([
             'title' => 'required|string|max:255',
             'surface' => 'required|string|',
@@ -78,39 +90,28 @@ class BienController extends Controller
             'address' => 'required|string',
             'ville' => 'required|string',
             'code_postal' => 'required|string',
-            'options' => 'nullable|string',
+            'options' => 'nullable|array',
+            'options.*' => 'integer|exists:options,id',
             'images' => 'required|image|max:50000', // 50mb max
             'chambre' => 'nullable|string',
 
         ]);
 
-        // 2. Traitement de l'image
-        // La méthode store() enregistre le fichier sur le disque 'public' dans le dossier 'biens'
-        // Elle retourne le chemin du fichier (ex: "biens/monimage.jpg")
         $imagePath = $request->file('images')->store('biens', 'public');
-
-        // 3. Préparation des données pour la base de données
-        // Dans $validatedData, 'images' est encore l'objet fichier.
-        // On le remplace par le chemin (string) pour que la base de données l'accepte.
         $validatedData['images'] = $imagePath;
 
         $validatedData['vendue'] = false;
-
-        if (empty($validatedData['options'])) {
-            $validatedData['options'] = '';
-        }
 
         if (empty($validatedData['etage'])) {
             $validatedData['etage'] = 0;
         }
 
+        $selectedOptions = $validatedData['options'] ?? [];
+        unset($validatedData['options']);
 
-        // 4. Enregistrement
-        // On utilise les données validées (avec le chemin de l'image corrigé) pour créer le Bien
         $bien = Bien::create($validatedData);
+        $bien->featureOptions()->sync($selectedOptions);
 
-        // 5. Redirection
-        // On redirige l'utilisateur vers la liste des biens (ou ailleurs) avec un message
         return redirect('biens')->with('success', 'Le bien a été ajouté avec succès !');
     }
 
@@ -122,12 +123,9 @@ class BienController extends Controller
      */
     public function show(Bien $bien)
     {
-        $bien = Bien::query()->where('id', $bien->id)->first();
-
+        $bien->load('featureOptions:id,name');
 
         return view('biens.showbien', ['bien' => $bien]);
-
-
     }
 
     /**
@@ -135,7 +133,12 @@ class BienController extends Controller
      */
     public function edit(Bien $bien)
     {
-        return view('biens.editbien', ['bien' => $bien]);
+        $bien->load('featureOptions');
+
+        return view('biens.editbien', [
+            'bien' => $bien,
+            'options' => Option::query()->orderBy('name')->get(),
+        ]);
     }
 
     /**
@@ -143,7 +146,24 @@ class BienController extends Controller
      */
     public function update(Request $request, Bien $bien)
     {
-        $data = $request->except('images');
+        $validatedData = $request->validate([
+            'title' => 'required|string|max:255',
+            'surface' => 'required|string',
+            'prix' => 'required|string',
+            'description' => 'required|string',
+            'pieces' => 'required|integer|min:1',
+            'etage' => 'nullable|integer',
+            'address' => 'required|string',
+            'ville' => 'required|string',
+            'code_postal' => 'required|string',
+            'options' => 'nullable|array',
+            'options.*' => 'integer|exists:options,id',
+            'images' => 'nullable|image|max:50000',
+            'chambre' => 'nullable|string',
+        ]);
+
+        $data = $validatedData;
+        unset($data['images'], $data['options']);
         $data['vendue'] = $request->boolean('vendue');
         $bien->fill($data);
 
@@ -154,6 +174,7 @@ class BienController extends Controller
         }
 
         $bien->save();
+        $bien->featureOptions()->sync($validatedData['options'] ?? []);
 
         return redirect()->route('biens.index')->with('success', 'Le bien a été mis à jour avec succès !');
     }
@@ -176,7 +197,12 @@ class BienController extends Controller
             'tel' => 'required|string|max:30',
             'email' => 'required|email|max:255',
             'msg' => 'required|string|min:10|max:2000',
+        ], [
+            'msg.required' => 'Le message est obligatoire.',
+            'msg.min' => 'Le message doit contenir au moins 10 caractères.',
+            'msg.max' => 'Le message ne doit pas dépasser 2000 caractères.',
         ]);
+
 
         $to = config('mail.to.address');
         if (empty($to)) {

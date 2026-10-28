@@ -213,19 +213,14 @@
 
 
                     <h3 class="fw-bold pt-4-">Spécificités</h3>
+                    <ul class="list-group list-group-flush">
+                        @foreach ($bien->featureOptions as $option)
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>{{ $option->name }}</span>
+                            </li>
+                        @endforeach
+                    </ul>
 
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                @if($bien->options)
-                                    @foreach (explode('\n', $bien->options) as $options)
-                                        <th scope="col">{{ $options }}</th>
-                                    @endforeach
-                                @endif
-                            </tr>
-                        </thead>
-                        <tbody>
-                    </table>
 
                     
             </div>

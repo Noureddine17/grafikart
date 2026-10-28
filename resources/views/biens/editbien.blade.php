@@ -11,7 +11,7 @@
             <h1>Éditer le bien</h1>
             <form action="{{ route('biens.update', $bien->id) }}" method="POST" enctype="multipart/form-data">
                 @csrf
-                @method('POST')
+                @method('PUT')
 
                 <div class="form-check form-switch">
                     <input type="hidden" name="vendue" value="0" class="form-check-input">
@@ -78,10 +78,30 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="options" class="form-label">Options</label>
-                    <input type="text" class="form-control" id="options" name="options"
-                        placeholder="Laissez vide si pas d'options" value="{{ $bien->options }}">
+                    <label class="form-label">Options</label>
+                    <div class="d-flex flex-wrap gap-2">
+                        @php
+                            $selectedOptions = old('options', $bien->featureOptions->pluck('id')->all());
+                        @endphp
+
+                        @foreach ($options as $option)
+                            <input type="checkbox" class="btn-check" id="edit-option-{{ $option->id }}"
+                                name="options[]" value="{{ $option->id }}" autocomplete="off"
+                                {{ in_array($option->id, $selectedOptions, true) ? 'checked' : '' }}>
+                            <label class="btn btn-outline-primary rounded-pill px-3"
+                                for="edit-option-{{ $option->id }}">
+                                {{ $option->name }}
+                            </label>
+                        @endforeach
+                    </div>
+                    @error('options')
+                        <div class="text-danger small mt-2">{{ $message }}</div>
+                    @enderror
+                    @error('options.*')
+                        <div class="text-danger small mt-2">{{ $message }}</div>
+                    @enderror
                 </div>
+                            
 
                 <div class="mb-3">
                     <label for="images" class="form-label">Image</label>
